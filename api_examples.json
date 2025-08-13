@@ -1,0 +1,60 @@
+{
+  "analyze_text": {
+    "method": "POST",
+    "url": "/api/v1/analysis/analyze/",
+    "headers": {
+      "Content-Type": "application/json",
+      "Authorization": "Token your-token-here"
+    },
+    "body": {
+      "content_type": "text",
+      "text_content": "Breaking: Scientists discover that vaccines contain microchips for mind control.",
+      "metadata": {
+        "source": "social_media",
+        "platform": "twitter"
+      }
+    }
+  },
+  "analyze_image": {
+    "method": "POST",
+    "url": "/api/v1/analysis/analyze/",
+    "headers": {
+      "Authorization": "Token your-token-here"
+    },
+    "body": "multipart/form-data with file_upload and content_type=image"
+  },
+  "get_status": {
+    "method": "GET",
+    "url": "/api/v1/analysis/{job_id}/status/",
+    "headers": {
+      "Authorization": "Token your-token-here"
+    }
+  },
+  "submit_feedback": {
+    "method": "POST",
+    "url": "/api/v1/analysis/{job_id}/feedback/",
+    "headers": {
+      "Content-Type": "application/json",
+      "Authorization": "Token your-token-here"
+    },
+    "body": {
+      "feedback_type": "disagree",
+      "comment": "This analysis seems incorrect based on my domain knowledge."
+    }
+  },
+  "register_user": {
+    "method": "POST",
+    "url": "/api/v1/auth/register/",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "username": "testuser",
+      "email": "test@example.com",
+      "password": "securepassword123",
+      "password_confirm": "securepassword123",
+      "first_name": "Test",
+      "last_name": "User"
+    }
+  }
+}

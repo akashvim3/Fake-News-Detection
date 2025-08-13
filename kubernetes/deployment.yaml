@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: factcheck-api
+  labels:
+    app: factcheck-api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: factcheck-api
+  template:
+    metadata:
+      labels:
+        app: factcheck-api
+    spec:
+      containers:
+      - name: factcheck-api
+        image: factcheck-api:latest
+        ports:
+        - containerPort: 8000
+        env:
+        - name: DEBUG
+          value: "False"
+        - name: DB_HOST
+          value: "postgres-service"
+        - name: REDIS_URL
+          value: "redis://redis-service:6379/0"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /api/v1/analysis/stats/
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/v1/analysis/stats/
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: factcheck-api-service
+spec:
+  selector:
+    app: factcheck-api
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8000
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: celery-worker
+  labels:
+    app: celery-worker
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: celery-worker
+  template:
+    metadata:
+      labels:
+        app: celery-worker
+    spec:
+      containers:
+      - name: celery-worker
+        image: factcheck-api:latest
+        command: ["celery", "-A", "factcheck_api", "worker", "--loglevel=info"]
+        env:
+        - name: DEBUG
+          value: "False"
+        - name: DB_HOST
+          value: "postgres-service"
+        - name: REDIS_URL
+          value: "redis://redis-service:6379/0"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
